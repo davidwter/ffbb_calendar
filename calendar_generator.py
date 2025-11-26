@@ -19,6 +19,7 @@ def create_calendar(matches, calendar_name="Basketball Matches"):
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
         "PRODID:-//FFBB Calendar//FR",
+        "X-WR-CALNAME:" + calendar_name,
         "X-WR-TIMEZONE:Europe/Paris",
     ]
 

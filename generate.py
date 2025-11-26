@@ -9,6 +9,7 @@ TEAM_URLS = [
     "https://competitions.ffbb.com/ligues/naq/comites/0033/clubs/naq0033048/equipes/200000005210924",
 ]
 
+CALENDAR_NAME = "U15F"
 OUTPUT_FILE = "calendar.ics"
 
 
@@ -36,7 +37,7 @@ def main():
     # Sort by date
     unique_matches.sort(key=lambda x: x['start_time'])
 
-    ics_content = create_calendar(unique_matches)
+    ics_content = create_calendar(unique_matches, CALENDAR_NAME)
 
     with open(OUTPUT_FILE, "w") as f:
         f.write(ics_content)
