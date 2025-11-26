@@ -4,45 +4,38 @@
 from scraper import fetch_matches
 from calendar_generator import create_calendar
 
-# Add your team URLs here
-TEAM_URLS = [
-    "https://competitions.ffbb.com/ligues/naq/comites/0033/clubs/naq0033048/equipes/200000005210924",
+# Teams configuration: (URL, calendar_name)
+TEAMS = [
+    ("https://competitions.ffbb.com/ligues/naq/comites/0033/clubs/naq0033048/equipes/200000005210924", "U15F"),
+    ("https://competitions.ffbb.com/ligues/naq/comites/0033/clubs/naq0033048/equipes/200000005145377", "SeniorF1"),
+    ("https://competitions.ffbb.com/ligues/naq/comites/0033/clubs/naq0033048/equipes/200000005179764", "SeniorF2"),
+    ("https://competitions.ffbb.com/ligues/naq/comites/0033/clubs/naq0033048/equipes/200000005209182", "U18F"),
+    ("https://competitions.ffbb.com/ligues/naq/comites/0033/clubs/naq0033048/equipes/200000005145508", "SeniorG1"),
 ]
 
-CALENDAR_NAME = "U15F"
-OUTPUT_FILE = "U15F.ics"
+
+def generate_calendar(url, name):
+    """Generate a single calendar file."""
+    print(f"\n=== Generating {name} ===")
+    matches = fetch_matches(url)
+
+    if not matches:
+        print(f"No matches found for {name}!")
+        return
+
+    matches.sort(key=lambda x: x['start_time'])
+    ics_content = create_calendar(matches, name)
+
+    output_file = f"{name}.ics"
+    with open(output_file, "w") as f:
+        f.write(ics_content)
+
+    print(f"Generated {output_file} with {len(matches)} matches")
 
 
 def main():
-    all_matches = []
-
-    for url in TEAM_URLS:
-        matches = fetch_matches(url)
-        all_matches.extend(matches)
-        print(f"Found {len(matches)} matches from {url}")
-
-    if not all_matches:
-        print("No matches found!")
-        return
-
-    # Remove duplicates based on start_time and teams
-    seen = set()
-    unique_matches = []
-    for m in all_matches:
-        key = (m['start_time'], m['home_team'], m['away_team'])
-        if key not in seen:
-            seen.add(key)
-            unique_matches.append(m)
-
-    # Sort by date
-    unique_matches.sort(key=lambda x: x['start_time'])
-
-    ics_content = create_calendar(unique_matches, CALENDAR_NAME)
-
-    with open(OUTPUT_FILE, "w") as f:
-        f.write(ics_content)
-
-    print(f"Generated {OUTPUT_FILE} with {len(unique_matches)} matches")
+    for url, name in TEAMS:
+        generate_calendar(url, name)
 
 
 if __name__ == "__main__":
