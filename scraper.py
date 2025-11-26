@@ -67,24 +67,44 @@ def parse_french_date(date_str):
         print(f"Error creating date: {e}")
         return None
 
-def fetch_match_time(match_url):
+def fetch_match_details(match_url):
     """
-    Fetches the correct time from the match detail page.
-    The team listing page sometimes shows incorrect times.
+    Fetches match details from the match detail page:
+    - Correct time (team listing page sometimes shows incorrect times)
+    - Venue name and address
     """
+    details = {'start_time': None, 'location': None}
     try:
         response = requests.get(match_url, headers=HEADERS, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
+        html = response.text
 
-        # Look for date pattern in the page
+        # Extract time
         text = soup.get_text()
         match = re.search(r"(\d+)\s+([a-zéû\.]+)\s+(\d+)h(\d+)", text, re.IGNORECASE)
         if match:
-            return parse_french_date(f"{match.group(1)} {match.group(2)} {match.group(3)}h{match.group(4)}")
+            details['start_time'] = parse_french_date(f"{match.group(1)} {match.group(2)} {match.group(3)}h{match.group(4)}")
+
+        # Extract venue name
+        nom_match = re.search(r'Nom</span>.*?whitespace-nowrap"?>([^<]+)</span>', html)
+        venue_name = nom_match.group(1).strip() if nom_match else None
+
+        # Extract address
+        addr_match = re.search(r'Adresse</span>.*?whitespace-nowrap"?>([^<]+)</span>', html)
+        address = addr_match.group(1).strip() if addr_match else None
+
+        # Combine venue name and address
+        if venue_name and address:
+            details['location'] = f"{venue_name}, {address}"
+        elif venue_name:
+            details['location'] = venue_name
+        elif address:
+            details['location'] = address
+
     except Exception as e:
         print(f"Warning: Could not fetch match details from {match_url}: {e}")
-    return None
+    return details
 
 
 def fetch_matches(url):
@@ -164,16 +184,17 @@ def fetch_matches(url):
 
         match_url = "https://competitions.ffbb.com" + link['href'] if link['href'].startswith('/') else link['href']
 
-        # Fetch correct time from match detail page (team listing page has wrong times)
-        print(f"  Fetching correct time for {home_team} vs {away_team}...")
-        correct_time = fetch_match_time(match_url)
-        if correct_time:
-            start_time = correct_time
+        # Fetch details from match detail page (time, venue)
+        print(f"  Fetching details for {home_team} vs {away_team}...")
+        details = fetch_match_details(match_url)
+        if details['start_time']:
+            start_time = details['start_time']
 
         matches.append({
             "home_team": home_team,
             "away_team": away_team,
             "start_time": start_time,
+            "location": details.get('location'),
             "url": url,
             "match_url": match_url
         })
