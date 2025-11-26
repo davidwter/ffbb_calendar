@@ -45,7 +45,7 @@ def create_calendar(matches, calendar_name="Basketball Matches"):
         lines.append("BEGIN:VEVENT")
         lines.append(f"DTSTART;TZID=Europe/Paris:{dt_start}")
         lines.append(f"DTEND;TZID=Europe/Paris:{dt_end}")
-        lines.append(f"SUMMARY:{match['home_team']} vs {match['away_team']}")
+        lines.append(f"SUMMARY:{calendar_name} - {match['home_team']} vs {match['away_team']}")
         if description_url:
             lines.append(f"DESCRIPTION:Match details: {description_url}")
         lines.append(f"UID:{uid}")
