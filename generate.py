@@ -10,7 +10,7 @@ TEAM_URLS = [
 ]
 
 CALENDAR_NAME = "U15F"
-OUTPUT_FILE = "calendar.ics"
+OUTPUT_FILE = "U15F.ics"
 
 
 def main():
