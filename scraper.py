@@ -138,7 +138,7 @@ def fetch_matches(url):
     print(f"Found {len(match_links)} potential matches.")
     
     for link in match_links:
-        container = link.find_parent('div', class_=lambda c: c and 'bg-white' in c and 'border-b' in c)
+        container = link.find_parent('div', class_=lambda c: c and 'bg-white' in c and 'h-[115px]' in c)
         if not container:
             continue
             
